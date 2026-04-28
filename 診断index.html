@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プロンプトF — 藤原はるか専用</title>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+  background: #f5f4f0;
+  color: #1a1a1a;
+  padding: 1rem;
+}
+
+h1 {
+  font-size: 18px;
+  margin-bottom: 1rem;
+}
+
+.section {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 10px;
+  border: 0.5px solid #e0ddd6;
+}
+
+.label {
+  font-size: 11px;
+  color: #777;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: 0.05em;
+}
+
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 20px;
+  border: 0.5px solid #d0cdc6;
+  background: #f5f4f0;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  active: transform scale(0.96);
+}
+
+.chip:active { transform: scale(0.95); }
+
+.chip.selected {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+/* 診断系チップの色分け */
+.chip.color-type.selected  { background: #b06090; border-color: #b06090; }
+.chip.bone-type.selected   { background: #5577aa; border-color: #5577aa; }
+.chip.face-type.selected   { background: #448866; border-color: #448866; }
+
+button {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+button:active { transform: scale(0.98); }
+
+.primary {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+}
+
+.primary:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.28); }
+
+.success {
+  background: #2a7a2a;
+  color: #fff;
+}
+
+.sub {
+  background: #fff;
+  border: 0.5px solid #d0cdc6;
+  color: #111;
+}
+
+.btn-bing {
+  background: #0078d4;
+  color: #fff;
+}
+.btn-gemini {
+  background: #4285f4;
+  color: #fff;
+}
+
+.prompt-text {
+  font-size: 12px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: none;
+  z-index: 999;
+}
+
+/* 診断セクションの小見出し */
+.sublabel {
+  font-size: 10px;
+  color: #aaa;
+  margin: 10px 0 6px;
+  letter-spacing: 0.04em;
+}
+</style>
+</head>
+
+<body>
+
+<h1>👗 プロンプトF</h1>
+
+
+<!-- 診断結果 -->
+<div class="section">
+  <div class="label">診断タイプ（はるかの診断結果を選ぶ）</div>
+
+  <div class="sublabel">🌸 イエベ春（Spring）</div>
+  <div class="chips">
+    <div class="chip color-type single" data-group="color4" data-value="Light Spring / Yellow-based, very light warm tones, soft peach, cream, light coral">ライトスプリング</div>
+    <div class="chip color-type single" data-group="color4" data-value="Bright Spring / Yellow-based, vivid warm tones, bright coral, poppy red, turquoise">ブライトスプリング</div>
+    <div class="chip color-type single" data-group="color4" data-value="Warm Spring / Yellow-based, golden warm tones, peach, warm beige, camel">ウォームスプリング</div>
+    <div class="chip color-type single" data-group="color4" data-value="Vivid Spring / Yellow-based, bold vibrant warm tones, orange red, bright yellow green">ビビッドスプリング</div>
+  </div>
+
+  <div class="sublabel">🍂 イエベ秋（Autumn）</div>
+  <div class="chips">
+    <div class="chip color-type single" data-group="color4" data-value="Muted Autumn / Yellow-based, muted warm tones, dusty terracotta, sage green, warm beige">ミューテッドオータム</div>
+    <div class="chip color-type single" data-group="color4" data-value="Warm Autumn / Yellow-based, rich warm tones, burnt orange, olive, mustard, caramel">ウォームオータム</div>
+    <div class="chip color-type single" data-group="color4" data-value="Deep Autumn / Yellow-based, dark deep warm tones, chocolate brown, deep olive, rust">ディープオータム</div>
+    <div class="chip color-type single" data-group="color4" data-value="Strong Autumn / Yellow-based, bold deep warm tones, deep terracotta, dark mustard, forest green">ストロングオータム</div>
+  </div>
+
+  <div class="sublabel">☁️ ブルベ夏（Summer）</div>
+  <div class="chips">
+    <div class="chip color-type single" data-group="color4" data-value="Bright Summer / Blue-based, bright clear cool tones, bright pink, sky blue, light lavender">ブライトサマー</div>
+    <div class="chip color-type single" data-group="color4" data-value="Light Summer / Blue-based, very light cool tones, soft lavender, powder blue, blush pink">ライトサマー</div>
+    <div class="chip color-type single" data-group="color4" data-value="Cool Summer / Blue-based, pure cool tones, icy pink, periwinkle, cool grey">クールサマー</div>
+    <div class="chip color-type single" data-group="color4" data-value="Muted Summer / Blue-based, greyed cool tones, dusty lilac, smoky blue, muted teal">ミューテッドサマー</div>
+  </div>
+
+  <div class="sublabel">❄️ ブルベ冬（Winter）</div>
+  <div class="chips">
+    <div class="chip color-type single" data-group="color4" data-value="Clear Winter / Blue-based, clear vivid contrast tones, pure white, icy blue, bright magenta">クリアウィンター</div>
+    <div class="chip color-type single" data-group="color4" data-value="Cool Winter / Blue-based, pure cool tones, pure white, black, royal blue, cool red">クールウィンター</div>
+    <div class="chip color-type single" data-group="color4" data-value="Deep Winter / Blue-based, dark deep cool tones, deep navy, charcoal, burgundy, dark plum">ディープウィンター</div>
+    <div class="chip color-type single" data-group="color4" data-value="Vivid Winter / Blue-based, bold vivid cool tones, electric blue, hot pink, emerald green">ビビッドウィンター</div>
+  </div>
+
+  <div class="sublabel">◎ 骨格タイプ</div>
+  <div class="chips">
+    <div class="chip bone-type single" data-group="bone" data-value="Straight body type, structured silhouette suits well, fitted clean lines">🟦 ストレート</div>
+    <div class="chip bone-type single" data-group="bone" data-value="Wave body type, soft feminine silhouette, flowy and layered styles suit well">🌊 ウェーブ</div>
+    <div class="chip bone-type single" data-group="bone" data-value="Natural body type, relaxed oversized silhouette, casual and textured styles suit well">🌿 ナチュラル</div>
+  </div>
+
+  <div class="sublabel">◎ フェイスタイプ — 子供顔</div>
+  <div class="chips">
+    <div class="chip face-type single" data-group="face" data-value="Cute face type / youthful, round soft features, sweet and innocent impression">キュート</div>
+    <div class="chip face-type single" data-group="face" data-value="Active Cute face type / energetic youthful features, sporty and lively impression">アクティブキュート</div>
+    <div class="chip face-type single" data-group="face" data-value="Fresh face type / natural bright youthful features, clean and cheerful impression">フレッシュ</div>
+    <div class="chip face-type single" data-group="face" data-value="Cool Casual face type / slightly sharp youthful features, casual cool impression">クールカジュアル</div>
+  </div>
+
+  <div class="sublabel">◎ フェイスタイプ — 大人顔</div>
+  <div class="chips">
+    <div class="chip face-type single" data-group="face" data-value="Feminine face type / soft mature features, romantic and elegant impression">フェミニン</div>
+    <div class="chip face-type single" data-group="face" data-value="Soft Elegant face type / gentle mature features, graceful and refined impression">ソフトエレガント</div>
+    <div class="chip face-type single" data-group="face" data-value="Elegant face type / sophisticated mature features, classy and polished impression">エレガント</div>
+    <div class="chip face-type single" data-group="face" data-value="Cool face type / sharp defined mature features, stylish and edgy impression">クール</div>
+  </div>
+</div>
+
+<!-- 変える部分 -->
+<div class="section">
+  <div class="label">変える部分</div>
+  <div class="chips">
+    <div class="chip multi" data-target="change outfit">服</div>
+    <div class="chip multi" data-target="change hairstyle">髪型</div>
+    <div class="chip multi" data-target="refine makeup">メイク</div>
+    <div class="chip multi" data-target="adjust background">背景</div>
+    <div class="chip multi" data-target="change outfit, hairstyle, makeup and overall styling">全部</div>
+  </div>
+</div>
+
+<!-- ファッションスタイル -->
+<div class="section">
+  <div class="label">ファッションスタイル</div>
+  <div class="chips">
+    <div class="chip single" data-group="style" data-value="elegant feminine fashion">綺麗め</div>
+    <div class="chip single" data-group="style" data-value="casual streetwear fashion">カジュアル</div>
+    <div class="chip single" data-group="style" data-value="Korean street fashion">韓国風</div>
+    <div class="chip single" data-group="style" data-value="Western overseas fashion, global street style">海外風</div>
+    <div class="chip single" data-group="style" data-value="cool and edgy fashion, sharp styling">クール</div>
+    <div class="chip single" data-group="style" data-value="soft feminine fashion, girly and romantic">フェミニン</div>
+    <div class="chip single" data-group="style" data-value="smart office outfit">オフィス</div>
+    <div class="chip single" data-group="style" data-value="minimal clean fashion">ミニマル</div>
+    <div class="chip single" data-group="style" data-value="date outfit, elegant and charming">デート風</div>
+  </div>
+</div>
+
+
+<!-- 配色タイプ -->
+<div class="section">
+  <div class="label">配色タイプ</div>
+  <div class="chips">
+    <div class="chip single" data-group="scheme" data-value="monochrome color scheme">モノトーン</div>
+    <div class="chip single" data-group="scheme" data-value="similar color palette, harmonious color coordination">類似色コーデ</div>
+    <div class="chip single" data-group="scheme" data-value="complementary color scheme, stylish contrast">補色コーデ</div>
+    <div class="chip single" data-group="scheme" data-value="neutral base with accent color">ベーシック＋差し色</div>
+  </div>
+</div>
+
+<!-- カラー指定 -->
+<div class="section">
+  <div class="label">カラー指定</div>
+  <div class="chips">
+    <div class="chip single" data-group="color" data-value="black outfit">黒</div>
+    <div class="chip single" data-group="color" data-value="white outfit">白</div>
+    <div class="chip single" data-group="color" data-value="beige outfit">ベージュ</div>
+    <div class="chip single" data-group="color" data-value="navy outfit">ネイビー</div>
+    <div class="chip single" data-group="color" data-value="brown outfit">ブラウン</div>
+    <div class="chip single" data-group="color" data-value="pink outfit">ピンク</div>
+    <div class="chip single" data-group="color" data-value="red outfit">赤</div>
+    <div class="chip single" data-group="color" data-value="blue outfit">青</div>
+    <div class="chip single" data-group="color" data-value="green outfit">緑</div>
+    <div class="chip single" data-group="color" data-value="yellow outfit">黄</div>
+    <div class="chip single" data-group="color" data-value="purple outfit">紫</div>
+    <div class="chip single" data-group="color" data-value="orange outfit">オレンジ</div>
+  </div>
+</div>
+
+<!-- 質感・素材感 -->
+<div class="section">
+  <div class="label">質感・素材感</div>
+  <div class="chips">
+    <div class="chip single" data-group="texture" data-value="matte soft fabric texture">マット</div>
+    <div class="chip single" data-group="texture" data-value="glossy shiny fabric texture">ツヤ感</div>
+    <div class="chip single" data-group="texture" data-value="natural cotton and linen texture">ナチュラル素材</div>
+    <div class="chip single" data-group="texture" data-value="luxury silk and satin texture">高級素材</div>
+  </div>
+</div>
+
+<!-- 仕上がり -->
+<div class="section">
+  <div class="label">仕上がり方向</div>
+  <div class="chips">
+    <div class="chip single" data-group="finish" data-value="natural and clean look">ナチュラル</div>
+    <div class="chip single" data-group="finish" data-value="cute feminine look">可愛い</div>
+    <div class="chip single" data-group="finish" data-value="cool stylish look">かっこいい</div>
+    <div class="chip single" data-group="finish" data-value="elegant classy look">上品</div>
+    <div class="chip single" data-group="finish" data-value="soft and gentle atmosphere">やわらかい</div>
+  </div>
+</div>
+
+<!-- 服アイテム -->
+<div class="section">
+  <div class="label">服アイテム</div>
+  <div class="chips">
+    <div class="chip single" data-group="item" data-value="one-piece dress">ワンピース</div>
+    <div class="chip single" data-group="item" data-value="skirt">スカート</div>
+    <div class="chip single" data-group="item" data-value="wide pants">パンツ</div>
+    <div class="chip single" data-group="item" data-value="blouse">ブラウス</div>
+    <div class="chip single" data-group="item" data-value="knit sweater">ニット</div>
+    <div class="chip single" data-group="item" data-value="jacket">ジャケット</div>
+    <div class="chip single" data-group="item" data-value="coat">コート</div>
+    <div class="chip single" data-group="item" data-value="denim jeans">デニム</div>
+    <div class="chip single" data-group="item" data-value="cardigan">カーディガン</div>
+    <div class="chip single" data-group="item" data-value="T-shirt">Tシャツ</div>
+  </div>
+</div>
+
+<!-- 顔固定 -->
+<div class="section">
+  <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
+    <input type="checkbox" id="faceLock" checked>
+    顔固定モード
+  </label>
+</div>
+
+<button class="primary" onclick="generatePrompt()">✦ プロンプト作成して自動コピー</button>
+
+<div class="section" id="resultBox">
+  <div class="label">生成プロンプト</div>
+  <div class="prompt-text" id="result"></div>
+</div>
+
+<button class="sub" onclick="copyPrompt()">↻ もう一度コピー</button>
+<button class="success" onclick="openService('flow')">▶ Google Flow で開く</button>
+<button class="btn-bing" onclick="openService('bing')">🔍 Bing Image Creator で開く</button>
+<button class="btn-gemini" onclick="openService('gemini')">✦ Gemini で開く</button>
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+const state = {
+  color4: "",
+  bone: "",
+  face: "",
+  style: "",
+  scheme: "",
+  color: "",
+  texture: "",
+  finish: "",
+  item: ""
+};
+
+const SERVICES = {
+  flow: "https://labs.google/fx/ja/tools/flow/project/d03d6b88-ee08-46c6-9050-ac6f06849887",
+  bing: "https://www.bing.com/images/create",
+  gemini: "https://gemini.google.com/"
+};
+
+
+document.querySelectorAll(".multi").forEach(chip => {
+  chip.addEventListener("click", function() {
+    const isAll = this.dataset.target.includes("overall styling");
+    if (isAll) {
+      const selected = this.classList.contains("selected");
+      document.querySelectorAll(".multi").forEach(c => c.classList.remove("selected"));
+      if (!selected) this.classList.add("selected");
+    } else {
+      const allChip = Array.from(document.querySelectorAll(".multi"))
+        .find(c => c.dataset.target.includes("overall styling"));
+      if (allChip) allChip.classList.remove("selected");
+      this.classList.toggle("selected");
+    }
+  });
+});
+
+document.querySelectorAll(".single").forEach(chip => {
+  chip.addEventListener("click", function() {
+    const group = this.dataset.group;
+    if (this.classList.contains("selected")) {
+      this.classList.remove("selected");
+      state[group] = "";
+      return;
+    }
+    document.querySelectorAll(`.single[data-group="${group}"]`).forEach(c => c.classList.remove("selected"));
+    this.classList.add("selected");
+    state[group] = this.dataset.value;
+  });
+});
+
+function getTargets() {
+  const targets = [];
+  document.querySelectorAll(".multi.selected").forEach(chip => {
+    targets.push(chip.dataset.target);
+  });
+  return targets;
+}
+
+function generatePrompt() {
+  const targets = getTargets();
+  if (targets.length === 0) { showToast("変える部分を選んでください"); return; }
+
+  const faceLock = document.getElementById("faceLock").checked;
+
+  const promptParts = [
+    "best quality",
+    "ultra realistic photo",
+    "high detail",
+    "photorealistic",
+    faceLock ? "same person, preserve identity, keep original face, no face change" : "",
+    targets.join(", "),
+    state.color4,
+    state.bone,
+    state.face,
+    state.item,
+    state.style,
+    state.scheme,
+    state.color,
+    state.texture,
+    state.finish,
+    "balanced color coordination",
+    "professional fashion styling",
+    "natural lighting",
+    "realistic skin texture",
+    "sharp focus"
+  ].filter(Boolean);
+
+  const negativeParts = [
+    "low quality", "blurry", "bad anatomy", "deformed face",
+    "different person", "identity loss", "face change",
+    "extra fingers", "extra limbs", "distorted body",
+    "plastic skin", "overedited skin", "watermark", "text", "logo"
+  ];
+
+  const finalText =
+`Prompt:
+${promptParts.join(", ")}
+
+Negative:
+${negativeParts.join(", ")}`;
+
+  document.getElementById("result").textContent = finalText;
+  document.getElementById("resultBox").style.display = "block";
+  copyText(finalText);
+  showToast("プロンプトを自動コピーしました");
+}
+
+function copyPrompt() {
+  const text = document.getElementById("result").textContent;
+  if (!text) { showToast("先にプロンプトを作ってください"); return; }
+  copyText(text);
+  showToast("コピーしました");
+}
+
+function openService(key) {
+  const text = document.getElementById("result").textContent;
+  if (!text) { showToast("先にプロンプトを作ってください"); return; }
+  copyText(text);
+  window.open(SERVICES[key], "_blank");
+}
+
+function copyText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.style.display = "block";
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => { toast.style.display = "none"; }, 2200);
+}
+</script>
+
+</body>
+</html>
